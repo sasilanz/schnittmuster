@@ -9,3 +9,5 @@ test_crops/
 test_bbox.py
 test_crop.py
 export.html
+*.swp
+*.kate-swp
