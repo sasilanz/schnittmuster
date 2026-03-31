@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Schnittmuster-Sammlung
+Comment=Schnittmuster suchen und verwalten
+Exec=bash -c "cd /home/BENUTZERNAME/schnittmuster-db && ./start.sh"
+Icon=/home/BENUTZERNAME/schnittmuster-db/icon.png
+Terminal=false
+Categories=Utility;

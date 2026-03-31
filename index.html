@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schnittmuster-Sammlung</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #4A7FA5; --blue-dark: #3a6585; --blue-light: #ddeaf4;
+  --bg: #f4f5f7; --border: #dde1e7; --text-muted: #666;
+  --white: #fff; --gold: #e6a817; --green: #27ae60; --red: #c0392b;
+  --radius: 6px; --shadow: 0 1px 4px rgba(0,0,0,.1); --shadow-hover: 0 4px 12px rgba(0,0,0,.15);
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; background: var(--bg); color: #222; }
+header { background: var(--blue); color: #fff; padding: 13px 20px; font-size: 17px; font-weight: 600; }
+nav.tabs { display: flex; background: var(--white); border-bottom: 2px solid var(--border); padding: 0 16px; }
+nav.tabs button { border: none; background: none; padding: 13px 20px; font-size: 14px; cursor: pointer; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: .15s; }
+nav.tabs button.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+.tab { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; }
+.tab.active { display: block; }
+
+/* CARDS */
+.search-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.search-bar input[type=text] { flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; }
+.search-bar input:focus, .search-bar select:focus { outline: none; border-color: var(--blue); }
+.search-bar select { padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; background: var(--white); }
+.search-bar label { display: flex; align-items: center; gap: 5px; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.result-count { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+.card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; transition: .15s; overflow: hidden; }
+.card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+.card-img { width: 100%; height: 180px; object-fit: cover; background: var(--bg); display: block; }
+.card-img-placeholder { width: 100%; height: 180px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--blue); }
+.card-body { padding: 8px 10px 10px; }
+.card-nr { font-size: 11px; color: var(--text-muted); }
+.card-title { font-weight: 600; font-size: 13px; margin: 2px 0; }
+.card-sub { font-size: 11px; color: var(--text-muted); }
+.card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.star { font-size: 16px; cursor: pointer; color: #ccc; transition: .1s; }
+.star.on { color: var(--gold); }
+.empty { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 15px; }
+
+/* HEFTE TAB */
+.heft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.heft-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; overflow: hidden; transition: .15s; }
+.heft-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+.heft-card-img { width: 100%; height: 140px; object-fit: contain; background: var(--bg); display: block; }
+.heft-card-placeholder { width: 100%; height: 140px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.heft-card-body { padding: 10px 12px; }
+.heft-card-name { font-weight: 600; font-size: 14px; }
+.heft-card-count { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.heft-detail { display: none; }
+.heft-detail.active { display: block; }
+.back-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--blue); cursor: pointer; font-size: 14px; padding: 0; margin-bottom: 14px; }
+.heft-scans { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 20px; align-items: flex-start; }
+.heft-scan-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.heft-scan-img { max-height: 380px; width: auto; border-radius: var(--radius); border: 1px solid var(--border); display: block; }
+.heft-scan-btns { display: flex; gap: 4px; }
+.heft-scan-btns button { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px 8px; cursor: pointer; font-size: 13px; }
+.heft-scan-btns button:hover { background: var(--bg); }
+.heft-scan-badge { font-size: 11px; color: var(--text-muted); }
+.heft-muster-list { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.heft-muster-row { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--border); cursor: pointer; transition: .1s; }
+.heft-muster-row:last-child { border-bottom: none; }
+.heft-muster-row:hover { background: var(--bg); }
+.heft-muster-thumb { width: 36px; height: 45px; object-fit: cover; border-radius: 3px; background: var(--bg); flex-shrink: 0; }
+.heft-muster-thumb-ph { width: 36px; height: 45px; background: var(--blue-light); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.heft-muster-nr { font-weight: 600; font-size: 13px; min-width: 40px; color: var(--blue-dark); }
+.heft-muster-bez { flex: 1; font-size: 13px; }
+.heft-muster-gr { font-size: 12px; color: var(--text-muted); }
+.heft-muster-fav { font-size: 16px; }
+
+/* ERFASSEN */
+.card-box { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 16px; }
+.card-box h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+.field input, .field textarea, .field select { width: 100%; padding: 8px 11px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; background: var(--white); }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--blue); }
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 28px; text-align: center; cursor: pointer; transition: .15s; color: var(--text-muted); }
+.upload-zone:hover, .upload-zone.drag { border-color: var(--blue); background: var(--blue-light); }
+.upload-zone input { display: none; }
+.preview-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.preview-item { position: relative; }
+.preview-item img { height: 80px; width: auto; border-radius: 3px; border: 1px solid var(--border); }
+.preview-item button { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%; background: var(--red); color: #fff; border: none; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 8px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: .15s; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue-dark); }
+.btn-primary:disabled { opacity: .5; cursor: default; }
+.btn-ghost { background: none; border: 1px solid var(--border); color: #444; }
+.btn-ghost:hover { background: var(--bg); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: .85; }
+.btn-green { background: var(--green); color: #fff; }
+
+/* Extracted list */
+.extracted-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.extracted-table th { background: var(--bg); text-align: left; padding: 7px 10px; font-weight: 600; font-size: 12px; border-bottom: 2px solid var(--border); }
+.extracted-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.extracted-table input { width: 100%; padding: 4px 7px; border: 1px solid transparent; border-radius: 3px; font-size: 13px; background: transparent; }
+.extracted-table input:focus { border-color: var(--blue); background: var(--white); outline: none; }
+.extracted-table tr:hover td { background: #f9f9fb; }
+
+/* CROP TOOL */
+#crop-section { display: none; }
+.crop-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; align-items: start; }
+.crop-canvas-wrap { position: relative; display: inline-block; max-width: 100%; }
+.crop-canvas-wrap img { display: block; max-width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+#crop-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; border-radius: var(--radius); }
+.crop-list { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; max-height: 600px; overflow-y: auto; }
+.crop-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: .1s; }
+.crop-item:last-child { border-bottom: none; }
+.crop-item.active { background: var(--blue-light); }
+.crop-item.done { opacity: .6; }
+.crop-thumb { width: 32px; height: 40px; object-fit: cover; border-radius: 3px; background: var(--bg); flex-shrink: 0; }
+.crop-thumb-ph { width: 32px; height: 40px; border-radius: 3px; background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.crop-item-nr { font-weight: 600; font-size: 12px; color: var(--blue-dark); min-width: 32px; }
+.crop-item-bez { font-size: 12px; flex: 1; }
+.crop-done-icon { font-size: 14px; color: var(--green); }
+.crop-hint { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.crop-scan-select { margin-bottom: 12px; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 10px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.modal-header h2 { font-size: 17px; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-muted); padding: 2px 6px; }
+.modal-body { padding: 20px; }
+.modal-img { width: 100%; max-height: 260px; object-fit: contain; border-radius: var(--radius); background: var(--bg); margin-bottom: 14px; border: 1px solid var(--border); }
+.modal-img-ph { width: 100%; height: 160px; background: var(--blue-light); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 14px; }
+.modal-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-fields .full { grid-column: 1/-1; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.tag-chip { background: var(--blue-light); color: var(--blue-dark); font-size: 12px; padding: 2px 8px; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+.tag-chip button { background: none; border: none; cursor: pointer; font-size: 11px; color: var(--blue-dark); padding: 0; line-height: 1; }
+.msg { padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-top: 10px; display: none; }
+.msg.show { display: block; }
+.msg.ok { background: #d4edda; color: #155724; }
+.msg.err { background: #f8d7da; color: #721c24; }
+.loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media(max-width:600px) { .tab{padding:12px;} .card-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));} .crop-layout{grid-template-columns:1fr;} .modal-fields{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>✂️ Schnittmuster-Sammlung</header>
+
+<nav class="tabs">
+  <button class="active" onclick="showTab('suchen')">Suchen</button>
+  <button onclick="showTab('hefte')">Hefte</button>
+  <button onclick="showTab('erfassen')">Erfassen</button>
+</nav>
+
+<!-- ══ SUCHEN ══════════════════════════════════════════════════════════════ -->
+<div id="tab-suchen" class="tab active">
+  <div class="search-bar">
+    <input type="text" id="q" placeholder="Suchen…" oninput="loadMuster()">
+    <select id="f-heft" onchange="loadMuster()"><option value="">Alle Hefte</option></select>
+    <label><input type="checkbox" id="f-fav" onchange="loadMuster()"> ★ Favoriten</label>
+    <span class="result-count" id="result-count"></span>
+  </div>
+  <div class="card-grid" id="card-grid"></div>
+  <div class="empty" id="empty-suchen" style="display:none">Keine Muster gefunden</div>
+</div>
+
+<!-- ══ HEFTE ═══════════════════════════════════════════════════════════════ -->
+<div id="tab-hefte" class="tab">
+  <div id="hefte-overview">
+    <div class="heft-grid" id="heft-grid"></div>
+    <div class="empty" id="empty-hefte" style="display:none">Noch keine Hefte erfasst</div>
+  </div>
+  <div id="hefte-detail" class="heft-detail">
+    <button class="back-btn" onclick="showHefteOverview()">← Zurück</button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <h2 id="heft-detail-name" style="font-size:19px"></h2>
+      <button class="btn btn-primary" style="font-size:13px" onclick="openCropForHeft()">✂️ Bilder zuweisen</button>
+      <button class="btn btn-ghost" style="font-size:13px" onclick="document.getElementById('heft-scan-upload').click()">📷 Scan hinzufügen</button>
+      <input type="file" id="heft-scan-upload" accept="image/*" multiple style="display:none" onchange="uploadHeftScans(event)">
+    </div>
+    <div class="heft-scans" id="heft-detail-scans"></div>
+    <div class="heft-muster-list" id="heft-detail-muster"></div>
+  </div>
+</div>
+
+<!-- ══ ERFASSEN ════════════════════════════════════════════════════════════ -->
+<div id="tab-erfassen" class="tab">
+
+  <!-- Step 1: Heft & Scans -->
+  <div class="card-box" id="step1">
+    <h3>1. Heft</h3>
+    <div class="field">
+      <label>Heft-Bezeichnung</label>
+      <input type="text" id="heft-name" placeholder="Burda 02/2025">
+    </div>
+    <div class="field">
+      <label>Scan-Bilder hochladen (eine oder mehrere Seiten)</label>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept="image/*" multiple>
+        📁 Bilder hierher ziehen oder klicken
+      </div>
+      <div class="preview-list" id="preview-list"></div>
+    </div>
+    <button class="btn btn-primary" onclick="startExtract()" id="btn-extract">Extrahieren</button>
+    <div class="msg" id="msg-extract"></div>
+  </div>
+
+  <!-- Step 2: Review extracted patterns -->
+  <div class="card-box" id="step2" style="display:none">
+    <h3>2. Extrahierte Muster prüfen</h3>
+    <div style="overflow-x:auto">
+      <table class="extracted-table">
+        <thead><tr>
+          <th>Nr.</th><th>Bezeichnung</th><th>Kollektion</th><th>Grössen</th><th>Seite</th><th>Beschreibung</th><th></th>
+        </tr></thead>
+        <tbody id="extracted-tbody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="saveMuster()" id="btn-save">Alle speichern</button>
+      <button class="btn btn-ghost" onclick="addEmptyRow()">+ Zeile</button>
+    </div>
+    <div class="msg" id="msg-save"></div>
+  </div>
+
+  <!-- Step 3: Crop Tool -->
+  <div class="card-box" id="crop-section">
+    <h3>3. Bilder zuweisen <span style="font-size:12px;color:var(--text-muted);font-weight:400">— Muster in der Liste auswählen, dann Rechteck auf dem Scan ziehen</span></h3>
+    <div class="crop-layout">
+      <div>
+        <div class="crop-scan-select" style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:13px;color:var(--text-muted)">Scan-Seite:</label>
+          <select id="crop-scan-sel" onchange="showCropScan()" style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px"></select>
+          <button class="btn btn-ghost" style="font-size:13px;padding:4px 10px" onclick="rotateScan(90)">↻ 90°</button>
+          <button class="btn btn-ghost" style="font-size:13px;padding:4px 10px" onclick="rotateScan(180)">↻ 180°</button>
+        </div>
+        <div class="crop-canvas-wrap" id="crop-wrap">
+          <img id="crop-img" src="" alt="Scan">
+          <canvas id="crop-canvas"></canvas>
+        </div>
+      </div>
+      <div>
+        <p class="crop-hint">Muster anklicken → Rechteck ziehen</p>
+        <div class="crop-list" id="crop-list"></div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn btn-green" onclick="finishCrop()">✓ Fertig</button>
+          <button class="btn btn-ghost" onclick="skipCrop()">Überspringen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ DETAIL MODAL ════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="m-title">Muster</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="m-img-wrap"></div>
+      <div style="margin-bottom:14px;display:flex;gap:8px;align-items:center">
+        <button class="btn btn-ghost" style="font-size:13px" onclick="document.getElementById('m-bild-input').click()">📷 Bild ersetzen</button>
+        <button class="btn btn-ghost" style="font-size:13px" id="m-bild-del" onclick="deleteBild()">🗑 Bild löschen</button>
+        <input type="file" id="m-bild-input" accept="image/*" style="display:none" onchange="uploadBild(event)">
+      </div>
+      <div class="modal-fields">
+        <div class="field"><label>Nr.</label><input type="text" id="m-nr"></div>
+        <div class="field"><label>Bezeichnung</label><input type="text" id="m-bezeichnung"></div>
+        <div class="field"><label>Heft</label><input type="text" id="m-heft-name" readonly style="background:var(--bg)"></div>
+        <div class="field"><label>Kollektion</label><input type="text" id="m-kollektion"></div>
+        <div class="field"><label>Grössen</label><input type="text" id="m-groessen"></div>
+        <div class="field"><label>Seite im Heft</label><input type="text" id="m-seite"></div>
+        <div class="field full"><label>Beschreibung</label><input type="text" id="m-beschreibung"></div>
+        <div class="field full"><label>Notiz</label><textarea id="m-notiz" rows="2" style="resize:vertical"></textarea></div>
+        <div class="field full">
+          <label>Tags</label>
+          <div class="tags-wrap" id="m-tags-wrap"></div>
+          <input type="text" id="m-tag-input" placeholder="Tag eingeben + Enter" onkeydown="handleTagInput(event)" style="margin-top:5px">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="deleteMuster()">Löschen</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveMusterEdit()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let allMuster = [];
+let allHefte = [];
+let currentMusterId = null;
+let currentTags = [];
+let uploadedFiles = [];
+let extractedData = [];
+let currentHeftId = null;
+let cropMusterList = [];
+let activeCropIdx = null;
+let cropScans = [];
+let isDrawing = false, startX, startY, endX, endY;
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text; el.className = `msg show ${type}`;
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+function imgUrl(bild) { return bild ? `/images/bilder/${bild}` : null; }
+function scanUrl(datei) { return datei ? `/images/scans/${datei}` : null; }
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav.tabs button').forEach((b,i) => b.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  const idx = ['suchen','hefte','erfassen'].indexOf(name);
+  document.querySelectorAll('nav.tabs button')[idx]?.classList.add('active');
+  if (name === 'suchen') loadMuster();
+  if (name === 'hefte') loadHefte();
+}
+
+// ── SUCHEN ────────────────────────────────────────────────────────────────────
+async function loadMuster() {
+  const q = document.getElementById('q').value;
+  const heftId = document.getElementById('f-heft').value;
+  const gr = '';
+  const fav = document.getElementById('f-fav').checked ? '1' : '';
+  const params = new URLSearchParams({q, heft_id: heftId, groesse: gr, favorit: fav});
+  const res = await fetch(`/api/muster?${params}`);
+  allMuster = await res.json();
+  renderCards();
+  await loadHeftFilter();
+}
+
+function renderCards() {
+  const grid = document.getElementById('card-grid');
+  const empty = document.getElementById('empty-suchen');
+  document.getElementById('result-count').textContent = allMuster.length ? `${allMuster.length} Treffer` : '';
+  if (!allMuster.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = allMuster.map(m => {
+    const url = imgUrl(m.bild);
+    return `<div class="card" onclick="openModal(${m.id})">
+      ${url ? `<img class="card-img" src="${url}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+               <div class="card-img-placeholder" style="display:none">✂️</div>`
+             : `<div class="card-img-placeholder">✂️</div>`}
+      <div class="card-body">
+        <div class="card-nr">Nr. ${esc(m.nr)} ${m.heft_name ? '· '+esc(m.heft_name) : ''}</div>
+        <div class="card-title">${esc(m.bezeichnung)}</div>
+        <div class="card-sub">${esc(m.groessen)}${m.kollektion ? ' · '+esc(m.kollektion) : ''}</div>
+        <div class="card-foot">
+          <span class="star ${m.favorit?'on':''}" onclick="event.stopPropagation();toggleFav(${m.id},this)">★</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadHeftFilter() {
+  const sel = document.getElementById('f-heft');
+  const cur = sel.value;
+  const res = await fetch('/api/hefte');
+  allHefte = await res.json();
+  sel.innerHTML = '<option value="">Alle Hefte</option>' +
+    allHefte.map(h => `<option value="${h.id}" ${h.id==cur?'selected':''}>${esc(h.name)}</option>`).join('');
+}
+
+async function toggleFav(id, el) {
+  const m = allMuster.find(x => x.id === id);
+  if (!m) return;
+  const newVal = !m.favorit;
+  await fetch(`/api/muster/${id}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({favorit: newVal})});
+  m.favorit = newVal;
+  el.className = `star ${newVal?'on':''}`;
+}
+
+// ── HEFTE ─────────────────────────────────────────────────────────────────────
+async function loadHefte() {
+  const res = await fetch('/api/hefte');
+  allHefte = await res.json();
+  renderHeftGrid();
+}
+
+function heftSortKey(name) {
+  const m = name.match(/(\d{2})\/(\d{4})/);
+  return m ? `${m[2]}${m[1]}` : name;
+}
+
+function renderHeftGrid() {
+  document.getElementById('hefte-overview').style.display = 'block';
+  document.getElementById('hefte-detail').classList.remove('active');
+  const grid = document.getElementById('heft-grid');
+  const empty = document.getElementById('empty-hefte');
+  allHefte.sort((a, b) => heftSortKey(b.name).localeCompare(heftSortKey(a.name)));
+  if (!allHefte.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = allHefte.map(h => {
+    const firstScan = h.scans?.[0];
+    const url = firstScan ? scanUrl(firstScan.datei) : null;
+    return `<div class="heft-card" onclick="showHeftDetail(${h.id})">
+      ${url ? `<img class="heft-card-img" src="${url}" alt="${esc(h.name)}">`
+             : `<div class="heft-card-placeholder">📖</div>`}
+      <div class="heft-card-body">
+        <div class="heft-card-name">${esc(h.name)}</div>
+        <div class="heft-card-count">${h.anzahl} Muster</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function showHeftDetail(heftId) {
+  const h = allHefte.find(x => x.id === heftId);
+  if (!h) return;
+  currentHeftId = heftId;
+  document.getElementById('hefte-overview').style.display = 'none';
+  document.getElementById('hefte-detail').classList.add('active');
+  document.getElementById('heft-detail-name').textContent = h.name;
+
+  // Show all scans
+  const scansEl = document.getElementById('heft-detail-scans');
+  if (h.scans?.length) {
+    scansEl.innerHTML = h.scans.map((s, i) => `
+      <div class="heft-scan-wrap">
+        <span class="heft-scan-badge">${i === 0 ? '⭐ Vorschau' : `Bild ${i+1}`}</span>
+        <img class="heft-scan-img" src="${scanUrl(s.datei)}" alt="Bild ${i+1}">
+        <div class="heft-scan-btns">
+          ${i > 0 ? `<button onclick="moveScan(${s.id},-1)">← vorher</button>` : ''}
+          ${i < h.scans.length-1 ? `<button onclick="moveScan(${s.id},1)">nachher →</button>` : ''}
+          <button onclick="deleteScan(${s.id})" style="color:var(--red)">🗑</button>
+        </div>
+      </div>`).join('');
+  } else {
+    scansEl.innerHTML = '<p style="color:var(--text-muted);font-size:14px">Keine Scans vorhanden</p>';
+  }
+
+  // Load patterns for this Heft
+  const res = await fetch(`/api/muster?heft_id=${heftId}`);
+  const muster = await res.json();
+  const listEl = document.getElementById('heft-detail-muster');
+  if (!muster.length) { listEl.innerHTML = '<div style="padding:20px;color:var(--text-muted);font-size:14px">Keine Muster</div>'; return; }
+  listEl.innerHTML = muster.map(m => {
+    const url = imgUrl(m.bild);
+    return `<div class="heft-muster-row" onclick="openModal(${m.id})">
+      ${url ? `<img class="heft-muster-thumb" src="${url}" alt="">` : `<div class="heft-muster-thumb-ph">✂️</div>`}
+      <span class="heft-muster-nr">Nr.${esc(m.nr)}</span>
+      <span class="heft-muster-bez">${esc(m.bezeichnung)}</span>
+      <span class="heft-muster-gr">${esc(m.groessen)}</span>
+      <span class="heft-muster-fav">${m.favorit?'★':''}</span>
+    </div>`;
+  }).join('');
+}
+
+function showHefteOverview() {
+  document.getElementById('hefte-overview').style.display = 'block';
+  document.getElementById('hefte-detail').classList.remove('active');
+}
+
+async function moveScan(scanId, direction) {
+  await fetch(`/api/scan/${scanId}/move`, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({direction})
+  });
+  await loadHefte();
+  showHeftDetail(currentHeftId);
+}
+
+async function deleteScan(scanId) {
+  if (!confirm('Bild löschen?')) return;
+  await fetch(`/api/scan/${scanId}`, {method: 'DELETE'});
+  await loadHefte();
+  showHeftDetail(currentHeftId);
+}
+
+async function uploadHeftScans(e) {
+  const files = [...e.target.files];
+  if (!files.length || !currentHeftId) return;
+  const h = allHefte.find(x => x.id === currentHeftId);
+  const existingPages = (h?.scans || []).length;
+  for (let i = 0; i < files.length; i++) {
+    const fd = new FormData();
+    fd.append('file', files[i]);
+    fd.append('heft_id', currentHeftId);
+    fd.append('seite', existingPages + i + 1);
+    await fetch('/api/upload/scan', {method: 'POST', body: fd});
+  }
+  e.target.value = '';
+  await loadHefte();
+  showHeftDetail(currentHeftId);
+}
+
+async function openCropForHeft() {
+  const h = allHefte.find(x => x.id === currentHeftId);
+  if (!h) return;
+  // Load scans as File-like objects via fetch
+  cropScans = [];
+  for (const s of (h.scans || [])) {
+    const url = `/images/scans/${s.datei}`;
+    const blob = await fetch(url).then(r => r.blob());
+    cropScans.push({id: s.id, datei: s.datei, seite: s.seite, file: blob});
+  }
+  const res = await fetch(`/api/muster?heft_id=${h.id}`);
+  cropMusterList = await res.json();
+  currentHeftId = h.id;
+  showTab('erfassen');
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'none';
+  initCropTool();
+}
+
+// ── ERFASSEN ──────────────────────────────────────────────────────────────────
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles([...e.dataTransfer.files]); });
+fileInput.addEventListener('change', () => addFiles([...fileInput.files]));
+
+function addFiles(files) {
+  files.filter(f => f.type.startsWith('image/')).forEach(f => uploadedFiles.push(f));
+  renderPreviews();
+}
+
+function renderPreviews() {
+  const el = document.getElementById('preview-list');
+  el.innerHTML = uploadedFiles.map((f, i) => {
+    const url = URL.createObjectURL(f);
+    return `<div class="preview-item">
+      <img src="${url}" alt="">
+      <button onclick="removeFile(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function removeFile(i) { uploadedFiles.splice(i, 1); renderPreviews(); }
+
+async function startExtract() {
+  const heftName = document.getElementById('heft-name').value.trim();
+  if (!heftName) { showMsg('msg-extract', 'Bitte Heft-Bezeichnung eingeben', 'err'); return; }
+  if (!uploadedFiles.length) { showMsg('msg-extract', 'Bitte Scan-Bilder hochladen', 'err'); return; }
+
+  const btn = document.getElementById('btn-extract');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Extrahiere…';
+
+  try {
+    const formData = new FormData();
+    uploadedFiles.forEach(f => formData.append('images', f));
+    const res = await fetch('/api/extract', {method: 'POST', body: formData});
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Fehler'); }
+    extractedData = await res.json();
+    renderExtracted();
+    document.getElementById('step2').style.display = 'block';
+  } catch(e) {
+    showMsg('msg-extract', 'Extraktion fehlgeschlagen: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Extrahieren';
+  }
+}
+
+function renderExtracted() {
+  const tbody = document.getElementById('extracted-tbody');
+  tbody.innerHTML = extractedData.map((m, i) => `
+    <tr data-i="${i}">
+      <td><input value="${esc(m.nr||'')}" oninput="extractedData[${i}].nr=this.value" style="width:55px"></td>
+      <td><input value="${esc(m.bezeichnung||'')}" oninput="extractedData[${i}].bezeichnung=this.value"></td>
+      <td><input value="${esc(m.kollektion||'')}" oninput="extractedData[${i}].kollektion=this.value"></td>
+      <td><input value="${esc(m.groessen||'')}" oninput="extractedData[${i}].groessen=this.value" style="width:70px"></td>
+      <td><input value="${esc(m.seite||'')}" oninput="extractedData[${i}].seite=this.value" style="width:45px"></td>
+      <td><input value="${esc(m.beschreibung||'')}" oninput="extractedData[${i}].beschreibung=this.value"></td>
+      <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:12px" onclick="extractedData.splice(${i},1);renderExtracted()">✕</button></td>
+    </tr>`).join('');
+}
+
+function addEmptyRow() {
+  extractedData.push({nr:'', bezeichnung:'', kollektion:'', groessen:'', seite:'', beschreibung:''});
+  renderExtracted();
+}
+
+async function saveMuster() {
+  const heftName = document.getElementById('heft-name').value.trim();
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+
+  try {
+    // 1. Heft anlegen
+    const hRes = await fetch('/api/hefte', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name: heftName})});
+    const heft = await hRes.json();
+    currentHeftId = heft.id;
+
+    // 2. Scans hochladen
+    cropScans = [];
+    for (let i = 0; i < uploadedFiles.length; i++) {
+      const fd = new FormData();
+      fd.append('file', uploadedFiles[i]);
+      fd.append('heft_id', heft.id);
+      fd.append('seite', i + 1);
+      const sRes = await fetch('/api/upload/scan', {method:'POST', body: fd});
+      const scan = await sRes.json();
+      cropScans.push({...scan, file: uploadedFiles[i]});
+    }
+
+    // 3. Muster speichern
+    const bRes = await fetch('/api/muster/bulk', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({heft_id: heft.id, muster: extractedData})});
+    const result = await bRes.json();
+
+    showMsg('msg-save', `${result.count} Muster gespeichert!`, 'ok');
+
+    // 4. Crop-Tool öffnen
+    const musterRes = await fetch(`/api/muster?heft_id=${heft.id}`);
+    cropMusterList = await musterRes.json();
+    initCropTool();
+
+  } catch(e) {
+    showMsg('msg-save', 'Fehler: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function rotateScan(degrees) {
+  const idx = parseInt(document.getElementById('crop-scan-sel').value) || 0;
+  const scan = cropScans[idx];
+  if (!scan?.id && !scan?.datei) return;
+  if (!scan.id) { showMsg('msg-save', 'Zuerst speichern, dann rotieren', 'err'); return; }
+  await fetch(`/api/scan/${scan.id}/rotate`, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({degrees})
+  });
+  // Reload image (cache-bust)
+  const img = document.getElementById('crop-img');
+  img.src = `/images/scans/${scan.datei}?t=${Date.now()}`;
+  img.onload = setupCanvas;
+}
+
+// ── CROP TOOL ─────────────────────────────────────────────────────────────────
+function initCropTool() {
+  document.getElementById('crop-section').style.display = 'block';
+  document.getElementById('crop-section').scrollIntoView({behavior:'smooth'});
+
+  // Scan selector
+  const sel = document.getElementById('crop-scan-sel');
+  sel.innerHTML = cropScans.map((s, i) =>
+    `<option value="${i}">Seite ${s.seite}</option>`
+  ).join('');
+  showCropScan();
+  renderCropList();
+  activateCropItem(0);
+}
+
+function showCropScan() {
+  const idx = parseInt(document.getElementById('crop-scan-sel').value) || 0;
+  const scan = cropScans[idx];
+  if (!scan) return;
+  const img = document.getElementById('crop-img');
+  img.src = scan.datei ? `/images/scans/${scan.datei}?t=${Date.now()}` : URL.createObjectURL(scan.file);
+  img.onload = setupCanvas;
+}
+
+function setupCanvas() {
+  const img = document.getElementById('crop-img');
+  const canvas = document.getElementById('crop-canvas');
+  canvas.width = img.clientWidth;
+  canvas.height = img.clientHeight;
+}
+
+function renderCropList() {
+  const list = document.getElementById('crop-list');
+  list.innerHTML = cropMusterList.map((m, i) => {
+    const url = imgUrl(m.bild);
+    return `<div class="crop-item ${i===activeCropIdx?'active':''} ${m.bild?'done':''}" onclick="activateCropItem(${i})">
+      ${url ? `<img class="crop-thumb" src="${url}" alt="">` : `<div class="crop-thumb-ph">✂️</div>`}
+      <span class="crop-item-nr">Nr.${esc(m.nr)}</span>
+      <span class="crop-item-bez">${esc(m.bezeichnung)}</span>
+      ${m.bild ? '<span class="crop-done-icon">✓</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function activateCropItem(i) {
+  activeCropIdx = i;
+  renderCropList();
+}
+
+// Canvas drawing
+const cropCanvas = document.getElementById('crop-canvas');
+cropCanvas.addEventListener('mousedown', e => {
+  if (activeCropIdx === null) return;
+  isDrawing = true;
+  const r = cropCanvas.getBoundingClientRect();
+  startX = e.clientX - r.left;
+  startY = e.clientY - r.top;
+});
+cropCanvas.addEventListener('mousemove', e => {
+  if (!isDrawing) return;
+  const r = cropCanvas.getBoundingClientRect();
+  endX = e.clientX - r.left;
+  endY = e.clientY - r.top;
+  drawRect();
+});
+cropCanvas.addEventListener('mouseup', async e => {
+  if (!isDrawing) return;
+  isDrawing = false;
+  const r = cropCanvas.getBoundingClientRect();
+  endX = e.clientX - r.left;
+  endY = e.clientY - r.top;
+  await saveCrop();
+});
+
+// Touch support
+cropCanvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const r = cropCanvas.getBoundingClientRect();
+  isDrawing = true;
+  startX = t.clientX - r.left;
+  startY = t.clientY - r.top;
+});
+cropCanvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!isDrawing) return;
+  const t = e.touches[0];
+  const r = cropCanvas.getBoundingClientRect();
+  endX = t.clientX - r.left;
+  endY = t.clientY - r.top;
+  drawRect();
+});
+cropCanvas.addEventListener('touchend', async e => {
+  e.preventDefault();
+  if (!isDrawing) return;
+  isDrawing = false;
+  await saveCrop();
+});
+
+function drawRect() {
+  const ctx = cropCanvas.getContext('2d');
+  ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+  ctx.strokeStyle = '#4A7FA5';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 2]);
+  ctx.fillStyle = 'rgba(74,127,165,0.15)';
+  const x = Math.min(startX, endX), y = Math.min(startY, endY);
+  const w = Math.abs(endX - startX), h = Math.abs(endY - startY);
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeRect(x, y, w, h);
+}
+
+async function saveCrop() {
+  const ctx = cropCanvas.getContext('2d');
+  ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+
+  const m = cropMusterList[activeCropIdx];
+  if (!m) return;
+
+  const img = document.getElementById('crop-img');
+  const scaleX = img.naturalWidth / img.clientWidth;
+  const scaleY = img.naturalHeight / img.clientHeight;
+  const x = Math.min(startX, endX) * scaleX;
+  const y = Math.min(startY, endY) * scaleY;
+  const w = Math.abs(endX - startX) * scaleX;
+  const h = Math.abs(endY - startY) * scaleY;
+
+  if (w < 10 || h < 10) return;
+
+  const tmp = document.createElement('canvas');
+  tmp.width = 200; tmp.height = 250;
+  tmp.getContext('2d').drawImage(img, x, y, w, h, 0, 0, 200, 250);
+  const b64 = tmp.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+  const res = await fetch(`/api/muster/${m.id}/bild`, {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({image: b64})
+  });
+  const result = await res.json();
+  cropMusterList[activeCropIdx].bild = result.bild;
+
+  // Auto-advance to next without bild
+  const next = cropMusterList.findIndex((x, i) => i > activeCropIdx && !x.bild);
+  if (next >= 0) activateCropItem(next);
+  else renderCropList();
+}
+
+function finishCrop() {
+  document.getElementById('crop-section').style.display = 'none';
+  uploadedFiles = []; extractedData = []; cropScans = []; cropMusterList = [];
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('heft-name').value = '';
+  renderPreviews();
+  showTab('suchen');
+}
+
+function skipCrop() { finishCrop(); }
+
+// ── DETAIL MODAL ─────────────────────────────────────────────────────────────
+async function openModal(id) {
+  const res = await fetch(`/api/muster?q=`);
+  const all = await res.json();
+  const m = all.find(x => x.id === id) || allMuster.find(x => x.id === id);
+  if (!m) return;
+
+  currentMusterId = id;
+  currentTags = [...(m.tags || [])];
+
+  const url = imgUrl(m.bild);
+  const imgWrap = document.getElementById('m-img-wrap');
+  if (url) {
+    imgWrap.innerHTML = `<img class="modal-img" src="${url}" alt="">`;
+    document.getElementById('m-bild-del').style.display = '';
+  } else {
+    imgWrap.innerHTML = `<div class="modal-img-ph">✂️</div>`;
+    document.getElementById('m-bild-del').style.display = 'none';
+  }
+
+  document.getElementById('m-title').textContent = `Nr. ${m.nr} — ${m.bezeichnung}`;
+  document.getElementById('m-nr').value = m.nr || '';
+  document.getElementById('m-bezeichnung').value = m.bezeichnung || '';
+  document.getElementById('m-heft-name').value = m.heft_name || '';
+  document.getElementById('m-kollektion').value = m.kollektion || '';
+  document.getElementById('m-groessen').value = m.groessen || '';
+  document.getElementById('m-seite').value = m.seite_heft || '';
+  document.getElementById('m-beschreibung').value = m.beschreibung || '';
+  document.getElementById('m-notiz').value = m.notiz || '';
+  renderModalTags();
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function renderModalTags() {
+  const wrap = document.getElementById('m-tags-wrap');
+  wrap.innerHTML = currentTags.map((t, i) =>
+    `<span class="tag-chip">${esc(t)}<button onclick="removeTag(${i})">✕</button></span>`
+  ).join('');
+}
+
+function handleTagInput(e) {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim();
+    if (val && !currentTags.includes(val)) { currentTags.push(val); renderModalTags(); }
+    e.target.value = '';
+  }
+}
+
+function removeTag(i) { currentTags.splice(i, 1); renderModalTags(); }
+
+async function saveMusterEdit() {
+  const data = {
+    nr: document.getElementById('m-nr').value,
+    bezeichnung: document.getElementById('m-bezeichnung').value,
+    kollektion: document.getElementById('m-kollektion').value,
+    groessen: document.getElementById('m-groessen').value,
+    seite_heft: document.getElementById('m-seite').value,
+    beschreibung: document.getElementById('m-beschreibung').value,
+    notiz: document.getElementById('m-notiz').value,
+    tags: currentTags
+  };
+  await fetch(`/api/muster/${currentMusterId}`, {
+    method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
+  });
+  closeModal();
+  loadMuster();
+}
+
+async function deleteMuster() {
+  if (!confirm('Dieses Muster wirklich löschen?')) return;
+  await fetch(`/api/muster/${currentMusterId}`, {method: 'DELETE'});
+  closeModal();
+  loadMuster();
+}
+
+async function uploadBild(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const b64 = ev.target.result.split(',')[1];
+    await fetch(`/api/muster/${currentMusterId}/bild`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({image: b64})
+    });
+    closeModal();
+    loadMuster();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteBild() {
+  if (!confirm('Bild wirklich löschen?')) return;
+  await fetch(`/api/muster/${currentMusterId}`, {
+    method: 'PUT', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({bild: null})
+  });
+  closeModal();
+  loadMuster();
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOnBg(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  const img = document.getElementById('crop-img');
+  if (img.src) setupCanvas();
+});
+
+loadMuster();
+</script>
+</body>
+</html>

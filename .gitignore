@@ -1,0 +1,11 @@
+venv/
+.env
+*.db
+backups/
+data/
+__pycache__/
+*.pyc
+test_crops/
+test_bbox.py
+test_crop.py
+export.html
